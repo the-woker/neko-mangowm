@@ -4,13 +4,6 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
-    rust-overlay = {
-      url = "github:oxalica/rust-overlay";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    crane = {
-      url = "github:ipetkov/crane";
-    };
   };
 
   outputs =
@@ -18,22 +11,21 @@
       self,
       nixpkgs,
       flake-utils,
-      rust-overlay,
-      crane,
     }:
     flake-utils.lib.eachDefaultSystem (
       system:
       let
-        overlays = [ (import rust-overlay) ];
-        pkgs = import nixpkgs { inherit system overlays; };
+        pkgs = import nixpkgs { inherit system; };
 
-        rustToolchain = pkgs.rust-bin.stable.latest.default;
-        craneLib = (crane.mkLib pkgs).overrideToolchain rustToolchain;
+        neko-mangowm = pkgs.rustPlatform.buildRustPackage {
+          pname = "neko-mangowm";
+          version = "0.1.0";
 
-        commonArgs = {
-          src = craneLib.cleanCargoSource ./.;
-          strictDeps = true;
-          cargoExtraArgs = "--workspace";
+          src = ./.;
+
+          cargoLock = {
+            lockFile = ./Cargo.lock;
+          };
 
           nativeBuildInputs = with pkgs; [
             pkg-config
@@ -46,15 +38,6 @@
             libxkbcommon
           ];
         };
-
-        cargoArtifacts = craneLib.buildDepsOnly commonArgs;
-
-        neko-mangowm = craneLib.buildPackage (
-          commonArgs
-          // {
-            inherit cargoArtifacts;
-          }
-        );
       in
       {
         packages.default = neko-mangowm;
@@ -65,7 +48,10 @@
 
         devShells.default = pkgs.mkShell {
           inputsFrom = [ neko-mangowm ];
-          nativeBuildInputs = [ rustToolchain ];
+          nativeBuildInputs = with pkgs; [
+            cargo
+            rustc
+          ];
         };
       }
     );
