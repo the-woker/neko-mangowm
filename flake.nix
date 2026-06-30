@@ -30,22 +30,8 @@
           lockFile = "${neko}/Cargo.lock";
         };
 
-        postUnpack = ''
-          cat << EOF > "$sourceRoot/Cargo.toml"
-          [workspace]
-          members = ["mangowm"]
-          resolver = "2"
-          EOF
-        '';
-
-        cargoBuildFlags = [
-          "-p"
-          "mangowm"
-        ];
-        cargoCheckFlags = [
-          "-p"
-          "mangowm"
-        ];
+        cargoBuildFlags = [ "--workspace" ];
+        cargoCheckFlags = [ "--workspace" ];
 
         nativeBuildInputs = with pkgs; [
           pkg-config
