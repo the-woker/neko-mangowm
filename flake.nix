@@ -21,11 +21,21 @@
           pname = "neko-mangowm";
           version = "0.1.0";
 
-          src = ./.;
+          src = self.inputs.neko or pkgs.fetchFromGitHub {
+            owner = "the-woker";
+            repo = "neko-mangowm";
+            rev = "1b3750d0697498c29c55b31b812b8ed71774d35c";
+            hash = "sha256-3BWuBGDsvlyeio7ZyviSfiPF3pwmntBfs8k9eIzucuo=";
+          };
 
           cargoLock = {
-            lockFile = ./Cargo.lock;
+            lockFile = "${neko-mangowm.src}/Cargo.lock";
           };
+
+          cargoBuildFlags = [
+            "-p"
+            "mangowm"
+          ];
 
           nativeBuildInputs = with pkgs; [
             pkg-config
