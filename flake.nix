@@ -25,11 +25,19 @@
         version = "0.1.0";
 
         src = neko;
-        sourceRoot = "source/mangowm";
 
         cargoLock = {
           lockFile = "${neko}/Cargo.lock";
         };
+
+        cargoBuildFlags = [
+          "-p"
+          "mangowm"
+        ];
+        cargoCheckFlags = [
+          "-p"
+          "mangowm"
+        ];
 
         nativeBuildInputs = with pkgs; [
           pkg-config
